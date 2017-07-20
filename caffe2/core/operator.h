@@ -488,6 +488,10 @@ class Operator : public OperatorBase {
     return context_.IsStreamFree(device_option(), stream_id);
   }
 
+  void SwitchToStream(const int stream_id) {
+    context_.SwitchToDevice(stream_id);
+  }
+
   virtual bool RunOnDevice() = 0;
 
   // Returns whether operator has async on device part.
@@ -590,12 +594,13 @@ class Operator : public OperatorBase {
     return fillers;                                                      \
   }
 
- protected:
   void RecordEvent(const char* err_msg = nullptr) final {
     if (event_) {
       context_.Record(event_.get(), err_msg);
     }
   }
+
+ protected:
 
   Context context_;
 };

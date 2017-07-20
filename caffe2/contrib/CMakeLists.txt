@@ -8,6 +8,7 @@ add_subdirectory(script)
 if (USE_TENSORRT)
 add_subdirectory(tensorrt)
 endif()
+# Finally pass the src lists back to the parent
 
 # Pass the src lists back to the parent
 

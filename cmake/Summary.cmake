@@ -83,6 +83,10 @@ function (caffe2_print_configuration_summary)
   message(STATUS "  USE_ROCM              : ${USE_ROCM}")
   message(STATUS "  USE_EIGEN_FOR_BLAS    : ${CAFFE2_USE_EIGEN_FOR_BLAS}")
   message(STATUS "  USE_FFMPEG            : ${USE_FFMPEG}")
+
+  message(STATUS "  USE_OPENCL            : ${USE_OPENCL}")
+  message(STATUS "  USE_GLOG              : ${USE_GLOG}")
+
   message(STATUS "  USE_GFLAGS            : ${USE_GFLAGS}")
   message(STATUS "  USE_GLOG              : ${USE_GLOG}")
   message(STATUS "  USE_GLOO              : ${USE_GLOO}")
