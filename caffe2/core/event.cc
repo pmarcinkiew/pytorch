@@ -136,5 +136,20 @@ REGISTER_EVENT_SET_FINISHED_FUNCTION(CPU, EventSetFinishedCPU);
 REGISTER_EVENT_RESET_FUNCTION(CPU, EventResetCPU);
 
 REGISTER_EVENT_SET_CALLBACK_FUNCTION(CPU, EventSetCallbackCPU);
+//TODO: Investigate why OPENCL context should be handled
+//      by CPU events processing.
+//      OpenCL is much more similar to CPU computations
+//      than CUDA so it is not clear if this approach
+//      is the most efficient. It works for conv test
+//      in OpenCL so these handlers are necessary for now.
+REGISTER_EVENT_CREATE_FUNCTION(OPENCL, EventCreateCPU);
+REGISTER_EVENT_RECORD_FUNCTION(OPENCL, EventRecordCPU);
+REGISTER_EVENT_WAIT_FUNCTION(OPENCL, CPU, EventWaitCPUCPU);
+REGISTER_EVENT_FINISH_FUNCTION(OPENCL, EventFinishCPU);
+
+REGISTER_EVENT_QUERY_FUNCTION(OPENCL, EventQueryCPU);
+REGISTER_EVENT_ERROR_MESSAGE_FUNCTION(OPENCL, EventErrorMessageCPU);
+REGISTER_EVENT_SET_FINISHED_FUNCTION(OPENCL, EventSetFinishedCPU);
+REGISTER_EVENT_RESET_FUNCTION(OPENCL, EventResetCPU);
 
 } // namespace caffe2
