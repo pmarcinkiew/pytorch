@@ -142,6 +142,7 @@ TaskThreadPool* AsyncNetBase::pool(const DeviceOption& device_option) {
       PROTO_CPU,
       PROTO_MKLDNN,
       PROTO_IDEEP,
+      PROTO_OPENCL, //TODO: check if this is correct
       PROTO_ONLY_FOR_TEST,
   };
   if (cpu_types.find(device_option.device_type()) != cpu_types.end()) {

@@ -9,6 +9,7 @@ Copyright (c) 2011-2013 NYU                      (Clement Farabet)
 Copyright (c) 2006-2010 NEC Laboratories America (Ronan Collobert, Leon Bottou, Iain Melvin, Jason Weston)
 Copyright (c) 2006      Idiap Research Institute (Samy Bengio)
 Copyright (c) 2001-2004 Idiap Research Institute (Ronan Collobert, Samy Bengio, Johnny Mariethoz)
+Copyright (c) 2018-     Samsung Electronics      (Piotr Marcinkiewicz)
 
 From Caffe2:
 
@@ -52,10 +53,10 @@ modification, are permitted provided that the following conditions are met:
    notice, this list of conditions and the following disclaimer in the
    documentation and/or other materials provided with the distribution.
 
-3. Neither the names of Facebook, Deepmind Technologies, NYU, NEC Laboratories America
-   and IDIAP Research Institute nor the names of its contributors may be
-   used to endorse or promote products derived from this software without
-   specific prior written permission.
+3. Neither the names of Facebook, Deepmind Technologies, NYU, NEC Laboratories America,
+   IDIAP Research Institute and Samsung Electronics,
+   nor the names of its contributors may be used to endorse or promote products
+   derived from this software without specific prior written permission.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
