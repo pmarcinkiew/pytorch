@@ -8,6 +8,7 @@
 
 namespace caffe2 {
 
+// TODO: This operator fails on Nvidia Graphic Card. All results are 'nan'
 // This is Caffe's InnerProductOp, with a name that fits its purpose better.
 template <
     class Context,
@@ -148,6 +149,153 @@ class FullyConnectedOp final : public Operator<Context> {
 
   bool float16_compute_;
 };
+
+template <
+    class Context,
+    class Engine = DefaultEngine,
+    bool TransposeWeight = true>
+class FullyConnectedBatchedOp final : public Operator<Context> {
+ public:
+  USE_OPERATOR_CONTEXT_FUNCTIONS;
+  FullyConnectedBatchedOp(const OperatorDef& operator_def, Workspace* ws)
+      : Operator<Context>(operator_def, ws),
+        axis_(OperatorBase::GetSingleArgument<int32_t>("axis", 1)),
+        float16_compute_(
+            OperatorBase::GetSingleArgument<bool>("float16_compute", false)) {}
+  ~FullyConnectedBatchedOp() {}
+
+  template <
+      typename T_X,
+      typename T_W,
+      typename T_B,
+      typename T_Y,
+      typename MATH>
+  bool DoRunWithType() {
+    const auto& X = Input(0);
+    const auto& W = Input(1);
+    const auto& b = Input(2);
+    auto* Y = Output(0);
+    CAFFE_ENFORCE(b.ndim() == 2, b.ndim());
+    // batch size from X.shape(batch_size, M, N)
+    const auto canonical_axis = X.canonical_axis_index(axis_);
+    const auto batch_size = X.size_to_dim(canonical_axis);
+    const auto M = X.dim32(1);
+    const auto K = X.dim32(2);
+    // Y.shape(batch_size, K, M | N)
+    const int N = TransposeWeight ? W.dim32(1)
+                                  : W.dim32(2);
+    auto dimErrorString = [&]() {
+      return MakeString(
+          "Dimension mismatch: ",
+          "X: ",
+          X.dims(),
+          ", W: ",
+          W.dims(),
+          ", b: ",
+          b.dims(),
+          ", axis: ",
+          axis_,
+          ", M: ",
+          M,
+          ", N: ",
+          N,
+          ", K: ",
+          K);
+    };
+
+    // Error checking
+    CAFFE_ENFORCE(M == X.size() / K / batch_size, dimErrorString());
+    CAFFE_ENFORCE(K == W.size() / N / batch_size, dimErrorString());
+    //TODO: check for b.size()
+    //CAFFE_ENFORCE(N == b.dim32(0), dimErrorString());
+    //CAFFE_ENFORCE(N == b.size(), dimErrorString());
+
+    Y_shape_cache_ = X.dims();
+    // This is an invariant of canonical_axis, so we can DCHECK.
+    //DCHECK_LE(canonical_axis + 1, Y_shape_cache_.size());
+    //Y_shape_cache_.resize(canonical_axis + 1);
+    //Y_shape_cache_[canonical_axis] = N;
+    //Y->Resize(Y_shape_cache_);
+    Y->ResizeLike(X);
+    //TODO: check for Y.size()
+    //CAFFE_ENFORCE(M * N *K == Y->size(), dimErrorString());
+
+    if (X.size() == 0) {
+      // skip the rest of the computation if X is empty
+      Y->template mutable_data<T_Y>();
+      return true;
+    }
+
+    // default to FLOAT as math.h does.
+    TensorProto::DataType math_type = TensorProto_DataType_FLOAT;
+    if (fp16_type<MATH>()) {
+      math_type = TensorProto_DataType_FLOAT16;
+    }
+
+    // W * x
+    math::GemmBatched<T_X, Context, Engine>(
+        CblasNoTrans,
+        TransposeWeight ? CblasTrans : CblasNoTrans,
+        batch_size,
+        M,
+        N,
+        K,
+        1.0,
+        X.template data<T_X>(),
+        W.template data<T_W>(),
+        0.0,
+        Y->template mutable_data<T_Y>(),
+        &context_/*,*/
+        //sratch
+        /*math_type*/);
+
+    // Add bias term
+    if (bias_multiplier_.size() != M) {
+      // If the helper bias multiplier is not M, reshape and fill it with one.
+      bias_multiplier_.Resize(M*batch_size);
+      math::Set<T_B, Context>(
+          M*batch_size,
+          convert::To<float, T_B>(1),
+          bias_multiplier_.template mutable_data<T_B>(),
+          &context_);
+    }
+    math::GemmBatched<T_B, Context, Engine>(
+        CblasNoTrans,
+        CblasNoTrans,
+        batch_size, //batch size
+        M,
+        N,
+        1,
+        1,
+        bias_multiplier_.template data<T_B>(),
+        b.template data<T_B>(),
+        1,
+        Y->template mutable_data<T_Y>(),
+        &context_/*,
+        math_type*/);
+    return true;
+  }
+
+  bool RunOnDevice() override {
+    return DoRunWithType<
+        float, // X
+        float, // W
+        float, // B
+        float, // Y
+        float>(); // Math
+  }
+
+ protected:
+  size_t axis_{1};
+  size_t axis_w_{1};
+  // A local vector to cache the output shape so we don't need to recreate
+  // a vector object every time we run Run().
+  vector<TIndex> Y_shape_cache_;
+  Tensor<Context> bias_multiplier_;
+
+  bool float16_compute_;
+};
+
 
 template <
     class Context,
