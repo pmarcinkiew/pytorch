@@ -98,12 +98,16 @@ class CopyFromOpenCLOp final : public Operator<OpenCLContext> {
     const auto& X = Input(0);
     auto* Y = Outputs()[0]->GetMutable<Tensor<CPUContext>>();
     Y->Resize(X.dims());
-    context_.Copy<float>(X, *Y);
+    size_t n = X.size();
+    context_.enqueueCopyBytes<OpenCLContext, CPUContext>(n * sizeof(float),
+                                   static_cast<const void*>(X.data<float>()),
+                                   static_cast<void*>(Y->mutable_data<float>()));
     return true;
   }
 };
 
 REGISTER_CPU_OPERATOR(CopyFromOpenCL, CopyFromOpenCLOp);
+REGISTER_OPENCL_OPERATOR(CopyFromOpenCL, CopyFromOpenCLOp);
 OPERATOR_SCHEMA(CopyFromOpenCL).NumInputs(1).NumOutputs(1);
 
 } // namespace
@@ -118,6 +122,7 @@ bool CopyToOpenCLOp<OpenCLContext>::RunOnDevice() {
 }
 
 REGISTER_CPU_OPERATOR(CopyToOpenCL, CopyToOpenCLOp<OpenCLContext> );
+REGISTER_OPENCL_OPERATOR(CopyToOpenCL, CopyToOpenCLOp<OpenCLContext>);
 OPERATOR_SCHEMA(CopyToOpenCL).NumInputs(1, 2).NumOutputs(1);
 
 

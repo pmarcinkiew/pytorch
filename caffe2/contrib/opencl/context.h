@@ -171,6 +171,8 @@ class OpenCLContext final {
       const VECTOR_CLASS<cl::Event>* events = nullptr,
       cl::Event* event = nullptr) const {
     OPENCL_CHECK(queue().enqueueNDRangeKernel(kernel, offset, global, local, events, event));
+    //TODO: p.stawicki@samsung.com: check if this is really necessary
+    OPENCL_CHECK(queue().flush());
   }
 
   cl::Kernel BuildKernel(const char* src, std::string additional_options = "", const char* fn_name = "K");

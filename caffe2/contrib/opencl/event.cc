@@ -52,7 +52,10 @@ void EventRecordOPENCL(Event* event, const void* ctx_ptr, const char* err_msg) {
         "Calling Record multiple times");
 
     if (!err_msg) {
-      context->queue().enqueueMarker(&wrapper->cl_event_);
+      OPENCL_CHECK(context->queue().enqueueMarker(&wrapper->cl_event_));
+      //p.stawicki@smasung.com flush marker immediately,
+      //this prevents the computation device from stalling
+      OPENCL_CHECK(context->queue().flush());
       wrapper->cl_queue_ptr_ = context->queue()();
       wrapper->status_ = EventStatus::EVENT_SCHEDULED;
     } else {
@@ -97,7 +100,9 @@ void EventWaitOPENCLOPENCL(const Event* event, void* ctx_ptr) {
     auto context = static_cast<const OpenCLContext*>(ctx_ptr);
     if (context->queue()() != wrapper->cl_queue_ptr_) {
       std::vector<cl::Event> events = {wrapper->cl_event_};
-      context->queue().enqueueBarrierWithWaitList(&events);
+      OPENCL_CHECK(context->queue().enqueueBarrierWithWaitList(&events));
+      //TODO: p.stawicki@samsung.com: check if this is really necessary
+      OPENCL_CHECK(context->queue().flush());
     }
   }
 }
