@@ -4,7 +4,7 @@
 
 #include "caffe2/core/logging.h"
 
-#include "caffe2/mobile/contrib/libopencl-stub/include/libopencl.h"
+//#include "caffe2/mobile/contrib/libopencl-stub/include/libopencl.h"
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl.hpp>
 #else
