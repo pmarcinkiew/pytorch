@@ -185,6 +185,10 @@ class OpenCLContext final {
   template <class SrcContext, class DstContext>
   void enqueueCopyBytes(size_t nbytes, const void *src, void *dst);
 
+  static constexpr DeviceType GetDeviceType() {
+    return OPENCL;
+  }
+
   // Disabled for PyTorch
   // It causes ambiguous concretization of give tensor fill operator.
   // long int was cast both to size_t and int so
