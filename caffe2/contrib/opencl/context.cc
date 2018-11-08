@@ -199,4 +199,27 @@ std::string OpenCLContext::BuildArgumentList(std::vector<std::pair<std::string, 
   return out;
 }
 
+struct DefaultOpenCLAllocator final : public at::Allocator {
+  DefaultOpenCLAllocator() {}
+  ~DefaultOpenCLAllocator() override {}
+  at::DataPtr allocate(size_t nbytes) const override {
+    cl_int err = 0;
+    cl::Buffer* buffer = new cl::Buffer(OpenCLContext::context, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR, nbytes, nullptr, &err);
+    OPENCL_CHECK(err);
+    return {buffer, buffer, &Delete, at::Device(OPENCL)};
+  }
+
+  at::DeleterFnPtr raw_deleter() const override {
+    return &Delete;
+  }
+
+ private:
+  static void Delete(void* ptr) {
+    OpenCLContext::Delete(ptr);
+  }
+};
+
+static DefaultOpenCLAllocator g_opencl_alloc;
+REGISTER_ALLOCATOR(OPENCL, &g_opencl_alloc);
+
 } // namespace caffe2
