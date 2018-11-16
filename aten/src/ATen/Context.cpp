@@ -113,6 +113,11 @@ Allocator* getCPUAllocator() {
   return getTHDefaultAllocator();
 }
 
+Allocator* getOPENCLAllocator() {
+  //FIXME: Is it correct allocator for OPENCL?
+  return getTHDefaultAllocator();
+}
+
 struct LegacyTypeInit : public LegacyTypeInitInterface {
   LegacyTypeInit(LegacyTypeInitArgs) {}
   void initCPU() const override {

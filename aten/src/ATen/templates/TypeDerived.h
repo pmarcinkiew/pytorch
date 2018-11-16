@@ -3,6 +3,7 @@
 // ${generated_comment}
 
 #include "ATen/CPUTypeDefault.h"
+#include "ATen/OPENCLTypeDefault.h"
 #include "ATen/Context.h"
 #include "ATen/CheckGenerator.h"
 

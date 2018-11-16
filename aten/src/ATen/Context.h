@@ -158,6 +158,7 @@ CAFFE2_API TypeExtendedInterface& getType(const TensorImpl*);
 CAFFE2_API TypeExtendedInterface& getType(const Tensor&);
 
 CAFFE2_API Allocator* getCPUAllocator();
+CAFFE2_API Allocator* getOPENCLAllocator();
 
 static inline TypeExtendedInterface& CPU(ScalarType s) {
   return getNonVariableType(Backend::CPU, s);
