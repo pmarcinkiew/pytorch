@@ -26,9 +26,8 @@ add_subdirectory(core)
 FILE(GLOB cuda_h "cuda/*.h" "cuda/detail/*.h" "cuda/*.cuh" "cuda/detail/*.cuh")
 FILE(GLOB cuda_cpp "cuda/*.cpp" "cuda/detail/*.cpp" "opencl/*.cpp")
 FILE(GLOB cuda_cu "cuda/*.cu" "cuda/detail/*.cu")
-#FILE(GLOB opencl_h "opencl/*.h" "opencl/detail/*.h" "opencl/*.cuh" "opencl/detail/*.cuh")
-#FILE(GLOB opencl_cpp "opencl/*.cpp" "opencl/detail/*.cpp")
-#FILE(GLOB opencl_cu "opencl/*.cu" "opencl/detail/*.cu")
+FILE(GLOB opencl_h "opencl/*.h" "opencl/detail/*.h" "opencl/*.cuh" "opencl/detail/*.cuh")
+FILE(GLOB opencl_cpp "opencl/*.cpp" "opencl/detail/*.cpp")
 FILE(GLOB cudnn_h "cudnn/*.h" "cudnn/*.cuh")
 FILE(GLOB cudnn_cpp "cudnn/*.cpp")
 FILE(GLOB miopen_h "miopen/*.h")
@@ -272,6 +271,10 @@ list(APPEND ATen_CUDA_INCLUDE ${ATen_CPU_INCLUDE})
 # of USE_CUDA (it always builds the same way); libATen_cuda.so is only
 # built when USE_CUDA=1 and CUDA is available.
 set(ATen_CPU_SRCS ${all_cpu_cpp})
+if(USE_OPENCL)
+  SET(ATen_CPU_SRCS ${ATen_CPU_SRCS} ${opencl_cpp})
+  #message(FATAL_ERROR fail)
+endif()
 if(AT_LINK_STYLE STREQUAL "INTERFACE")
   # Source code can't be added to an interface library, so it is
   # passed back to be compiled into the containing library
@@ -337,6 +340,7 @@ if(USE_CUDA OR USE_ROCM)
     set(ATen_CUDA_SRCS)
   endif()
 endif()
+
 
 if(NOT AT_LINK_STYLE STREQUAL "INTERFACE")
   if(USE_CUDA)

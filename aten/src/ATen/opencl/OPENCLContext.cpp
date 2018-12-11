@@ -1,5 +1,5 @@
 #include "ATen/opencl/OPENCLContext.h"
-#include "THC/THCGeneral.hpp"
+//#include "TH/THGeneral.hpp"
 
 namespace at { namespace opencl {
 

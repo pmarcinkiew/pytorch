@@ -2,14 +2,14 @@
 
 #include "ATen/OPENCLGenerator.h"
 #include "ATen/Context.h"
-#include "THCTensorRandom.h"
+//#include "THCTensorRandom.h"
 #include <stdexcept>
 
 // There is only one OPENCLGenerator instance. Calls to seed(), manualSeed(),
 // initialSeed(), and unsafeGetTH() refer to the THCGenerator on the current
 // device.
 
-THCGenerator* THCRandom_getGenerator(THCState* state);
+//THCGenerator* THCRandom_getGenerator(THCState* state);
 
 namespace at {
 
